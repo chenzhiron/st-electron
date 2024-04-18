@@ -14,6 +14,9 @@ importers:
       '@electron-toolkit/utils':
         specifier: ^3.0.0
         version: 3.0.0(electron@28.3.0)
+      iconv-lite:
+        specifier: ^0.6.3
+        version: 0.6.3
     devDependencies:
       '@electron-toolkit/eslint-config':
         specifier: ^1.0.1
@@ -31,7 +34,7 @@ importers:
         specifier: ^28.2.0
         version: 28.3.0
       electron-builder:
-        specifier: ^24.9.1
+        specifier: ^24.13.3
         version: 24.13.3(electron-builder-squirrel-windows@24.13.3(dmg-builder@24.13.3))
       electron-vite:
         specifier: ^2.0.0

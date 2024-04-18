@@ -2,8 +2,10 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { exec } from 'child_process'
+import { spawn } from 'child_process'
+import { decode } from 'iconv-lite'
 
+let pythonProcess = null
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -14,23 +16,31 @@ function createWindow() {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      devTools: true
     }
   })
 
   mainWindow.on('ready-to-show', () => {
-    exec('G:\\czr\\AutoStzb\\AutoStzb\\start.bat', (error, stdout, stderr) => {
-      if (error) {
-        console.log(error)
-        return
+    // 链接替换成正式项目链接
+    pythonProcess = spawn('./toolkit/python.exe', ['-u', './start.py'])
+    pythonProcess.stdout.on('data', (data) => {
+      data = decode(data, 'utf-8')
+      if (data.includes('Running on all addresses.')) {
+        setTimeout(() => {
+          mainWindow.show()
+          mainWindow.webContents.openDevTools()
+        }, 1000)
       }
-      // IPC test
-      ipcMain.on('ping', () => console.log('pong'))
-      console.log('stderr: ', stderr)
-      console.log('stdout: ', stdout)
+      // console.log('stdout:', decode(data, 'utf-8'))
     })
 
-    mainWindow.show()
+    pythonProcess.stderr.on('data', (data) => {
+      console.error('stderr: ', decode(data, 'utf-8'))
+    })
+    pythonProcess.on('close', (code) => {
+      console.log('子进程退出，退出码 ', code)
+    })
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -79,6 +89,7 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    pythonProcess.kill()
     app.quit()
   }
 })
