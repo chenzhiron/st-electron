@@ -22,15 +22,18 @@ function createWindow() {
   })
 
   mainWindow.on('ready-to-show', () => {
+    const test_python_link = 'G:\\czr\\AutoStzb\\AutoStzb\\toolkit\\python.exe'
+    const test_file_link = 'G:\\czr\\AutoStzb\\AutoStzb\\start.py'
     // 链接替换成正式项目链接
-    pythonProcess = spawn('./toolkit/python.exe', ['-u', './start.py'])
+    const python_link = './toolkit/python.exe'
+    const file_link = './start.py'
+    pythonProcess = spawn(test_python_link, ['-u', test_file_link])
     pythonProcess.stdout.on('data', (data) => {
       data = decode(data, 'utf-8')
       if (data.includes('Running on all addresses.')) {
         setTimeout(() => {
           mainWindow.show()
-          mainWindow.webContents.openDevTools()
-        }, 1000)
+        }, 2000)
       }
       // console.log('stdout:', decode(data, 'utf-8'))
     })
