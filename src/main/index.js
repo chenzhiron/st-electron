@@ -27,23 +27,24 @@ function createWindow() {
     // 链接替换成正式项目链接
     const python_link = './toolkit/python.exe'
     const file_link = './start.py'
-    pythonProcess = spawn(test_python_link, ['-u', test_file_link])
-    pythonProcess.stdout.on('data', (data) => {
-      data = decode(data, 'utf-8')
-      if (data.includes('Running on all addresses.')) {
-        setTimeout(() => {
-          mainWindow.show()
-        }, 2000)
-      }
-      // console.log('stdout:', decode(data, 'utf-8'))
-    })
-
-    pythonProcess.stderr.on('data', (data) => {
-      console.error('stderr: ', decode(data, 'utf-8'))
-    })
-    pythonProcess.on('close', (code) => {
-      console.log('子进程退出，退出码 ', code)
-    })
+    if (pythonProcess == null) {
+      pythonProcess = spawn(test_python_link, ['-u', test_file_link])
+      pythonProcess.stdout.on('data', (data) => {
+        data = decode(data, 'utf-8')
+        if (data.includes('Running on all addresses.')) {
+          setTimeout(() => {
+            mainWindow.show()
+          }, 2000)
+        }
+        pythonProcess.stderr.on('data', (data) => {
+          console.error('stderr: ', decode(data, 'utf-8'))
+        })
+        pythonProcess.on('close', (code) => {
+          console.log('子进程退出，退出码 ', code)
+        })
+        // console.log('stdout:', decode(data, 'utf-8'))
+      })
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
